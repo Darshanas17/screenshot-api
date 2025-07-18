@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
   res.send(
-    "✅ Screenshot API is running. Use /screenshot?url=https://example.com"
+    "✅ Screenshot API is running. Use /screenshot?url=https://google.com"
   );
 });
 
