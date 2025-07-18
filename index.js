@@ -1,3 +1,15 @@
+import express from "express";
+import puppeteer from "puppeteer";
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send(
+    "✅ Screenshot API running. Use /screenshot?url=https://example.com"
+  );
+});
+
 app.get("/screenshot", async (req, res) => {
   const url = req.query.url;
   if (!url)
@@ -23,4 +35,8 @@ app.get("/screenshot", async (req, res) => {
   } finally {
     if (browser) await browser.close();
   }
+});
+
+app.listen(port, () => {
+  console.log(`🚀 Screenshot API running on port ${port}`);
 });
