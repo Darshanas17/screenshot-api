@@ -1,12 +1,13 @@
 import express from "express";
-import puppeteer from "puppeteer";
+import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 10000;
 
 app.get("/", (req, res) => {
   res.send(
-    "✅ Screenshot API running. Use /screenshot?url=https://example.com"
+    "✅ Screenshot API is live. Use /screenshot?url=https://example.com"
   );
 });
 
@@ -17,14 +18,22 @@ app.get("/screenshot", async (req, res) => {
       .status(400)
       .send("❌ Please provide a URL like ?url=https://example.com");
 
-  let browser;
+  let browser = null;
   try {
+    const executablePath = await chromium.executablePath;
+
+    if (!executablePath) {
+      throw new Error("Chrome executable not found");
+    }
+
     browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath,
+      headless: chromium.headless,
+      args: chromium.args,
     });
+
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle2" });
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 30000 });
     const buffer = await page.screenshot({ type: "png" });
 
     res.set("Content-Type", "image/png");
