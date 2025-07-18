@@ -3,7 +3,7 @@ import chrome from "chrome-aws-lambda";
 import puppeteer from "puppeteer-core";
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
   res.send("✅ Screenshot API Home Page");
@@ -11,15 +11,12 @@ app.get("/", (req, res) => {
 
 app.get("/screenshot", async (req, res) => {
   const { url } = req.query;
-
-  if (!url) {
-    return res.status(400).send("❌ Missing URL");
-  }
+  if (!url) return res.status(400).send("❌ URL is required");
 
   try {
     const browser = await puppeteer.launch({
       args: chrome.args,
-      executablePath: await chrome.executablePath,
+      executablePath: (await chrome.executablePath) || null,
       headless: chrome.headless,
     });
 
@@ -31,12 +28,12 @@ app.get("/screenshot", async (req, res) => {
 
     res.set("Content-Type", "image/png");
     res.send(screenshot);
-  } catch (error) {
-    console.error("❌ Screenshot failed:", error.message);
-    res.status(500).send("❌ Screenshot failed: " + error.message);
+  } catch (err) {
+    console.error("❌ Screenshot failed:", err.message);
+    res.status(500).send("❌ Screenshot failed: " + err.message);
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Screenshot API running on port ${PORT}`);
+  console.log(`✅ Screenshot API running on http://localhost:${PORT}`);
 });
