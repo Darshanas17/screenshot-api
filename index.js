@@ -1,5 +1,5 @@
 import express from "express";
-import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import fs from "fs";
@@ -14,11 +14,9 @@ app.get("/screenshot", async (req, res) => {
   let browser = null;
 
   try {
-    browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox"],
+      headless: true,
     });
 
     const page = await browser.newPage();
