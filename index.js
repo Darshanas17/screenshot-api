@@ -1,20 +1,23 @@
 import express from "express";
 import puppeteer from "puppeteer";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-import fs from "fs";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.get("/", (req, res) => {
+  res.send(
+    "✅ Screenshot API is running. Use /screenshot?url=https://example.com"
+  );
+});
+
 app.get("/screenshot", async (req, res) => {
   const url = req.query.url;
-  if (!url) return res.status(400).send("URL parameter is required");
+  if (!url)
+    return res.status(400).send("❌ Please provide a valid URL with ?url=");
 
-  let browser = null;
-
+  let browser;
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       args: ["--no-sandbox"],
       headless: true,
     });
@@ -26,14 +29,14 @@ app.get("/screenshot", async (req, res) => {
 
     res.set("Content-Type", "image/png");
     res.send(screenshotBuffer);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error capturing screenshot");
+  } catch (error) {
+    console.error("Screenshot error:", error);
+    res.status(500).send("❌ Failed to capture screenshot");
   } finally {
-    if (browser !== null) await browser.close();
+    if (browser) await browser.close();
   }
 });
 
 app.listen(port, () => {
-  console.log(`Screenshot API running on port ${port}`);
+  console.log(`🚀 Screenshot API running on port ${port}`);
 });
